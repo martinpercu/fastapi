@@ -12,7 +12,7 @@ pip3 install uvicorn
 
 # 2 test working
 
-Create a main.py file in root.
+- Create a main.py file in root.
 
 ```sh
 uvicorn main:app --reload
