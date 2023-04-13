@@ -1,16 +1,32 @@
-# Start 1
+# 1 Start
 
 Here will start
 
 ```sh
-this is a nice place to throw commands
+python3 -m venv env
+source/env/activate
+pip3 install fastapi
+pip3 install uvicorn
 ```
 
 
-# Start 2
+# 2 test working
+
+Create a main.py file in root.
 
 ```sh
-etcetc
+uvicorn main:app --reload
+```
+At this point in localhost:8000 we must get the return message
+
+- To change to port 4800.... 
+```sh
+uvicorn main:app --reload --port 4800
+```
+
+- To see the app on net .... 
+```sh
+uvicorn main:app --reload --port 4800 --host 
 ```
 
 
