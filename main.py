@@ -64,7 +64,7 @@ def get_film(id: int):
             return item
     return "Film not find"
 
-@app.get('/films/', tags=['Films'])
+@app.get('/films/old/', tags=['Films'])
 def get_film_by_category(category: str):
     list_films = []
     for item in films:
@@ -73,13 +73,24 @@ def get_film_by_category(category: str):
     return list_films
 
 
-@app.get('/films/{category}/{year}', tags=['Films'])
+# a clever query from above...
+@app.get('/films/', tags=['Films'])
+def get_film_by_category2(category: str):
+    return [item for item in films if item['category'] == category]
+
+
+@app.get('/films/old/{category}/{year}', tags=['Films'])
 def get_film_by_category_or_year(category: str, year: int):
     list_films = []
     for item in films:
         if item['category'] == category or item['year'] == year:
             list_films.append(item)
     return list_films
+
+# a clever query from above...
+@app.get('/films/{category}/{year}', tags=['Films'])
+def get_film_by_category_or_year2(category: str, year: int):
+    return [item for item in films if item['category'] == category or item['year'] == year]
 
 
 
