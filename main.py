@@ -33,11 +33,13 @@ def message():
 def get_films():
     return films
 
-@app.get('/film/{id}', tags=['Films'])
+@app.get('/films/{id}', tags=['Films'])
 def get_film(id: int):
     for item in films:
         if item['id'] == id:
             return item
     return "Film not find"
+
+
 
 
