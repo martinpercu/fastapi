@@ -1,33 +1,22 @@
-# Game project
+# Start 1
 
-To run the "game" follow this intruction in terminal:
+Here will start
 
 ```sh
-cd game
-python3 main.py
+this is a nice place to throw commands
 ```
 
 
-# APP project
+# Start 2
 
 ```sh
-git clone
-cd app
-python3 -m venv env
-source env/bin/activate
-pip3 install -r requirements
-python3 main.py
+etcetc
 ```
 
 
-# WEB-SERVER project
+# Start 3
 
 ```sh
-git clone
-cd web-server
-python3 -m venv env
-source env/bin/activate
-pip3 install -r requirements
-python3 main.py
+etcetc
 ```
 
