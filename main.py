@@ -114,7 +114,7 @@ def update_film(id: int, title: str = Body(), overview: str = Body(), year: int 
             item['title'] = title,
             item['overview'] = overview,
             item['year'] = year,
-            item['year'] = year,
+            item['rating'] = rating,
             item['category'] = category
             return films
 
