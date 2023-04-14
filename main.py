@@ -111,10 +111,10 @@ def create_film(id: int = Body(), title: str = Body(), overview: str = Body(), y
 def update_film(id: int, title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category:str = Body()):
     for item in films:
         if item['id'] == id:
-            item['title'] = title,
-            item['overview'] = overview,
-            item['year'] = year,
-            item['rating'] = rating,
+            item['title'] = title
+            item['overview'] = overview
+            item['year'] = year
+            item['rating'] = rating
             item['category'] = category
             return films
 
