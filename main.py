@@ -85,7 +85,11 @@ def message():
 
 @app.post('/login', tags=['auth'])
 def login(user: User):
-    return user
+    if user.email == "admin@admin.com" and user.password == "Admin123456":
+        token: str = create_token(user.dict())
+        return JSONResponse(status_code=200, content=token)
+    return JSONResponse(status_code=404, content="PAS DE USER")
+
 
 @app.get('/films', tags=['Films'], response_model=List[Film], status_code=200)
 def get_films() -> List[Film]:
