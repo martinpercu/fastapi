@@ -6,6 +6,7 @@ from jwt_manager import create_token, validate_token
 from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
 from models.film import Film as FilmModel
+from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 app.title = "An app with FastAPI"
@@ -106,14 +107,19 @@ def login(user: User):
 
 @app.get('/films', tags=['Films'], response_model=List[Film], status_code=200, dependencies=[Depends(JWTBearer())])
 def get_films() -> List[Film]:
-    return JSONResponse(status_code=200, content=films)
+    db = Session()
+    result = db.query(FilmModel).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 @app.get('/films/{id}', tags=['Films'], response_model=Film)
 def get_film(id: int = Path(ge=1, le=1000)) -> Film:
-    for item in films:
-        if item['id'] == id:
-            return JSONResponse(status_code=200,content=item)
-    return JSONResponse(status_code=404, content=[])
+    db = Session()
+    result = db.query(FilmModel).filter(FilmModel.id == id).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "FILM NON TROUVÉ"})
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+
 '''
 @app.get('/films/old/', tags=['Films'])
 def get_film_by_category(category: str):
@@ -142,8 +148,9 @@ def get_film_by_category_or_year(category: str, year: int):
 # a clever query from above...
 @app.get('/films/{category}/{year}', tags=['Films'])
 def get_film_by_category_or_year2(category: str, year: int):
-    return [item for item in films if item['category'] == category or item['year'] == year]
-
+    db = Session()
+    result = db.query(FilmModel).filter(FilmModel.category == category).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 
 @app.post('/films', tags=['Films'], response_model=dict, status_code=201)
