@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
-from jwt_manager import create_token
+from utils.jwt_manager import create_token
 from config.database import engine, Base
 from middlewares.error_handler import ErrorHandler
 from routers.film import film_router
