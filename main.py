@@ -11,7 +11,7 @@ films = [
         "id": 1,
 		"title": "Avatar",
 		"overview": "Un human va a la planete pandora ou tous sont bleus ....",
-		"year": "2012",
+		"year": 2012,
 		"rating": 7.8,
 		"category": "Action"
     },
@@ -19,9 +19,33 @@ films = [
         "id": 2,
 		"title": "Avatar 2",
 		"overview": "Un human va a la planete pandora ou tous sont bleus ....",
-		"year": "2019",
+		"year": 2019,
 		"rating": 7.2,
 		"category": "Action"
+    },
+    {
+        "id": 3,
+		"title": "Avatar 3",
+		"overview": "Un human va a la planete pandora ou tous sont bleus ....",
+		"year": 2020,
+		"rating": 7.2,
+		"category": "Action"
+    },
+    {
+        "id": 4,
+		"title": "Funny Avatar",
+		"overview": "Un human va a la planete pandora ou tous sont bleus ....",
+		"year": 2005,
+		"rating": 7.2,
+		"category": "Comedy"
+    },
+    {
+        "id": 5,
+		"title": "Funny Avatar",
+		"overview": "Un human va a la planete pandora ou tous sont bleus ....",
+		"year": 2020,
+		"rating": 7.2,
+		"category": "Comedy"
     }
 ]
 
@@ -39,6 +63,37 @@ def get_film(id: int):
         if item['id'] == id:
             return item
     return "Film not find"
+
+@app.get('/films/old/', tags=['Films'])
+def get_film_by_category(category: str):
+    list_films = []
+    for item in films:
+        if item['category'] == category:
+            list_films.append(item)
+    return list_films
+
+
+# a clever query from above...
+@app.get('/films/', tags=['Films'])
+def get_film_by_category2(category: str):
+    return [item for item in films if item['category'] == category]
+
+
+@app.get('/films/old/{category}/{year}', tags=['Films'])
+def get_film_by_category_or_year(category: str, year: int):
+    list_films = []
+    for item in films:
+        if item['category'] == category or item['year'] == year:
+            list_films.append(item)
+    return list_films
+
+# a clever query from above...
+@app.get('/films/{category}/{year}', tags=['Films'])
+def get_film_by_category_or_year2(category: str, year: int):
+    return [item for item in films if item['category'] == category or item['year'] == year]
+
+
+
 
 
 
