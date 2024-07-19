@@ -1,10 +1,33 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Path, Query
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel, Field
+from typing import Optional
 
 
 app = FastAPI()
 app.title = "An app with FastAPI"
 app.version = "0.1"
+
+class Film(BaseModel):
+    id: Optional[int] = None
+    title: str = Field(min_length=5, max_length=15)
+    overview: str = Field(min_length=8, max_length=100)
+    year: int = Field(default=1987, le=2023)
+    rating: float = Field(ge=1, le=10)
+    category: str = Field(min_length=6, max_length=16)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "title": "Nom du film",
+		        "overview": "Bla bla bla descrition du notre film",
+		        "year": 1980,
+		        "rating": 8.6,
+		        "category": "Comedie"
+            },
+        }
+
 
 films = [
     {
@@ -58,7 +81,7 @@ def get_films():
     return films
 
 @app.get('/films/{id}', tags=['Films'])
-def get_film(id: int):
+def get_film(id: int = Path(ge=1, le=1000)):
     for item in films:
         if item['id'] == id:
             return item
@@ -75,7 +98,7 @@ def get_film_by_category(category: str):
 
 # a clever query from above...
 @app.get('/films/', tags=['Films'])
-def get_film_by_category2(category: str):
+def get_film_by_category2(category: str = Query(min_length=6, max_length=16)):
     return [item for item in films if item['category'] == category]
 
 
@@ -95,17 +118,27 @@ def get_film_by_category_or_year2(category: str, year: int):
 
 
 @app.post('/films', tags=['Films'])
-def create_film(id: int = Body(), title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category:str = Body()):
-    films.append({
-        "id": id,
-		"title": title,
-		"overview": overview,
-		"year": year,
-		"rating": rating,
-		"category": category
-    })
+def create_film(film: Film):
+    films.append(film)
     return films
 
 
+@app.put('/films/{id}', tags=['Films'])
+def update_film(id: int, film: Film):
+    for item in films:
+        if item['id'] == id:
+            item['title'] = film.title
+            item['overview'] = film.overview
+            item['year'] = film.year
+            item['rating'] = film.rating
+            item['category'] = film.category
+            return films
 
+
+@app.delete('/films/{id}', tags=['Films'])
+def delete_film(id: int):
+    for item in films:
+        if item['id'] == id:
+            films.remove(item)
+            return films
 
