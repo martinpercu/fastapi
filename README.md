@@ -30,9 +30,15 @@ uvicorn main:app --reload --port 4800 --host
 ```
 
 
-# Start 3
+# 3 Autentications
 
 ```sh
-etcetc
+pip3 install pyjwt
 ```
 
+
+# 4 Local SQL --> sqlalchemy
+
+```sh
+pip3 install sqlalchemy
+```
