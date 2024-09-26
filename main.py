@@ -1,12 +1,31 @@
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import FastAPI, Body, Path, Query, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
-
+from jwt_manager import create_token, validate_token
+from fastapi.security import HTTPBearer
+from config.database import Session, engine, Base
+from models.film import Film as FilmModel
 
 app = FastAPI()
 app.title = "An app with FastAPI"
 app.version = "0.1"
+
+Base.metadata.create_all(bind=engine)
+
+
+class JWTBearer(HTTPBearer):
+    async def __call__(self, request: Request):
+        auth = await super().__call__(request)
+        data = validate_token(auth.credentials)
+        if data['email'] != "admin@admin.com":
+            raise HTTPException(status_code=403, detail="Not valid credential")
+
+
+class User(BaseModel):
+    email: str
+    password: str
+
 
 class Film(BaseModel):
     id: Optional[int] = None
@@ -76,16 +95,25 @@ films = [
 def message():
     return HTMLResponse('<h2>"Bonjour monde"</h2>')
 
-@app.get('/films', tags=['Films'], response_model=List[Film])
+
+@app.post('/login', tags=['auth'])
+def login(user: User):
+    if user.email == "admin@admin.com" and user.password == "Admin123456":
+        token: str = create_token(user.dict())
+        return JSONResponse(status_code=200, content=token)
+    return JSONResponse(status_code=404, content="PAS DE USER")
+
+
+@app.get('/films', tags=['Films'], response_model=List[Film], status_code=200, dependencies=[Depends(JWTBearer())])
 def get_films() -> List[Film]:
-    return JSONResponse(content=films)
+    return JSONResponse(status_code=200, content=films)
 
 @app.get('/films/{id}', tags=['Films'], response_model=Film)
 def get_film(id: int = Path(ge=1, le=1000)) -> Film:
     for item in films:
         if item['id'] == id:
-            return JSONResponse(content=item)
-    return JSONResponse(content=[])
+            return JSONResponse(status_code=200,content=item)
+    return JSONResponse(status_code=404, content=[])
 '''
 @app.get('/films/old/', tags=['Films'])
 def get_film_by_category(category: str):
@@ -118,13 +146,16 @@ def get_film_by_category_or_year2(category: str, year: int):
 
 
 
-@app.post('/films', tags=['Films'], response_model=dict)
+@app.post('/films', tags=['Films'], response_model=dict, status_code=201)
 def create_film(film: Film) -> dict:
-    films.append(film)
-    return JSONResponse(content={"message": "Film enregistré"})
+    db = Session()
+    new_film = FilmModel(**film.dict())
+    db.add(new_film)
+    db.commit()
+    return JSONResponse(status_code=201, content={"message": "Film enregistré"})
 
 
-@app.put('/films/{id}', tags=['Films'], response_model=dict)
+@app.put('/films/{id}', tags=['Films'], response_model=dict,status_code=200)
 def update_film(id: int, film: Film) -> dict:
     for item in films:
         if item['id'] == id:
@@ -133,13 +164,13 @@ def update_film(id: int, film: Film) -> dict:
             item['year'] = film.year
             item['rating'] = film.rating
             item['category'] = film.category
-            return JSONResponse(content={"message": "Film actualisé"})
+            return JSONResponse(status_code=200, content={"message": "Film actualisé"})
 
 
-@app.delete('/films/{id}', tags=['Films'], response_model=dict)
+@app.delete('/films/{id}', tags=['Films'], response_model=dict, status_code=200)
 def delete_film(id: int) -> dict:
     for item in films:
         if item['id'] == id:
             films.remove(item)
-            return JSONResponse(content={"message": "Film effacé"})
+            return JSONResponse(status_code=200, content={"message": "Film effacé"})
 
