@@ -30,9 +30,9 @@ uvicorn main:app --reload --port 4800 --host
 ```
 
 
-# Start 3
+# 3 Autentications
 
 ```sh
-etcetc
+pip3 install pyjdt
 ```
 
