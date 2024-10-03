@@ -36,3 +36,9 @@ uvicorn main:app --reload --port 4800 --host
 pip3 install pyjdt
 ```
 
+
+# 4 Local SQL --> sqlalchemy
+
+```sh
+pip3 install sqlalchemy
+```
