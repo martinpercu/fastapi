@@ -33,7 +33,7 @@ uvicorn main:app --reload --port 4800 --host
 # 3 Autentications
 
 ```sh
-pip3 install pyjdt
+pip3 install pyjwt
 ```
 
 
