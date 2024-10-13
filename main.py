@@ -5,7 +5,7 @@ from typing import Optional, List
 from jwt_manager import create_token, validate_token
 from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
-from models.film import Film
+from models.film import Film as FilmModel
 
 app = FastAPI()
 app.title = "An app with FastAPI"
@@ -148,7 +148,10 @@ def get_film_by_category_or_year2(category: str, year: int):
 
 @app.post('/films', tags=['Films'], response_model=dict, status_code=201)
 def create_film(film: Film) -> dict:
-    films.append(film)
+    db = Session()
+    new_film = FilmModel(**film.dict())
+    db.add(new_film)
+    db.commit()
     return JSONResponse(status_code=201, content={"message": "Film enregistré"})
 
 
