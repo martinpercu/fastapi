@@ -164,20 +164,26 @@ def create_film(film: Film) -> dict:
 
 @app.put('/films/{id}', tags=['Films'], response_model=dict,status_code=200)
 def update_film(id: int, film: Film) -> dict:
-    for item in films:
-        if item['id'] == id:
-            item['title'] = film.title
-            item['overview'] = film.overview
-            item['year'] = film.year
-            item['rating'] = film.rating
-            item['category'] = film.category
-            return JSONResponse(status_code=200, content={"message": "Film actualisé"})
+    db = Session()
+    result = db.query(FilmModel).filter(FilmModel.id == id).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "FILM NON TROUVÉ"})
+    result.title = film.title
+    result.overview = film.overview
+    result.year = film.year
+    result.rating = film.rating
+    result.category = film.category
+    db.commit()
+    return JSONResponse(status_code=200, content={"message": "Film actualisé"})
 
 
 @app.delete('/films/{id}', tags=['Films'], response_model=dict, status_code=200)
 def delete_film(id: int) -> dict:
-    for item in films:
-        if item['id'] == id:
-            films.remove(item)
-            return JSONResponse(status_code=200, content={"message": "Film effacé"})
+    db = Session()
+    result = db.query(FilmModel).filter(FilmModel.id == id).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "FILM NON TROUVÉ"})
+    db.delete(result)
+    db.commit()
+    return JSONResponse(status_code=200, content={"message": "Film effacé"})
 
