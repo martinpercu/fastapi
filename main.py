@@ -1,26 +1,21 @@
-from fastapi import FastAPI, Body, Path, Query, Request, HTTPException, Depends
+from fastapi import FastAPI, Body, Path, Query, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from jwt_manager import create_token, validate_token
-from fastapi.security import HTTPBearer
+from jwt_manager import create_token
 from config.database import Session, engine, Base
 from models.film import Film as FilmModel
 from fastapi.encoders import jsonable_encoder
+from middlewares.error_handler import ErrorHandler
+from middlewares.jwt_bearer import JWTBearer
 
 app = FastAPI()
 app.title = "An app with FastAPI"
 app.version = "0.1"
 
+app.add_middleware(ErrorHandler)
+
 Base.metadata.create_all(bind=engine)
-
-
-class JWTBearer(HTTPBearer):
-    async def __call__(self, request: Request):
-        auth = await super().__call__(request)
-        data = validate_token(auth.credentials)
-        if data['email'] != "admin@admin.com":
-            raise HTTPException(status_code=403, detail="Not valid credential")
 
 
 class User(BaseModel):
