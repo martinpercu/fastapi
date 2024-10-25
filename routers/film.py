@@ -7,6 +7,7 @@ from config.database import Session
 from models.film import Film as FilmModel
 from fastapi.encoders import jsonable_encoder
 from middlewares.jwt_bearer import JWTBearer
+from services.film import FilmService
 
 film_router = APIRouter()
 
@@ -35,48 +36,24 @@ class Film(BaseModel):
 @film_router.get('/films', tags=['Films'], response_model=List[Film], status_code=200, dependencies=[Depends(JWTBearer())])
 def get_films() -> List[Film]:
     db = Session()
-    result = db.query(FilmModel).all()
+    result = FilmService(db).get_films()
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 @film_router.get('/films/{id}', tags=['Films'], response_model=Film)
 def get_film(id: int = Path(ge=1, le=1000)) -> Film:
     db = Session()
-    result = db.query(FilmModel).filter(FilmModel.id == id).first()
+    result = FilmService(db).get_film(id)
     if not result:
         return JSONResponse(status_code=404, content={'message': "FILM NON TROUVÉ"})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 
-'''
-@film_router.get('/films/old/', tags=['Films'])
-def get_film_by_category(category: str):
-    list_films = []
-    for item in films:
-        if item['category'] == category:
-            list_films.append(item)
-    return list_films
-'''
-
-# a clever query from above...
 @film_router.get('/films/', tags=['Films'], response_model=List[Film])
-def get_film_by_category2(category: str = Query(min_length=6, max_length=16)) -> List[Film]:
-    data = [item for item in films if item['category'] == category]
-    return JSONResponse(content=data)
-
-'''
-@film_router.get('/films/old/{category}/{year}', tags=['Films'])
-def get_film_by_category_or_year(category: str, year: int):
-    list_films = []
-    for item in films:
-        if item['category'] == category or item['year'] == year:
-            list_films.append(item)
-    return list_films
-'''
-# a clever query from above...
-@film_router.get('/films/{category}/{year}', tags=['Films'])
-def get_film_by_category_or_year2(category: str, year: int):
+def get_film_by_category(category: str = Query(min_length=6, max_length=16)) -> List[Film]:
     db = Session()
-    result = db.query(FilmModel).filter(FilmModel.category == category).all()
+    result = FilmService(db).get_films_by_category(category)
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "FILM NON TROUVÉ"})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 
